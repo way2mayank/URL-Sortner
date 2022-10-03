@@ -5,7 +5,9 @@ const urlController=require('../controller/urlController')
 
 router.post('/url/shorten',urlController.shortningUrl)
 router.get('/:urlCode',urlController.urlRedirecting)
-router.all('*',async function(req,res){
+
+
+router.all('/*',async function(req,res){
     return res.status(400).send({status:false,Message:"Check url"})
 })
 
