@@ -8,7 +8,7 @@ router.get('/:urlCode',urlController.urlRedirecting)
 
 
 router.all('/*',async function(req,res){
-    return res.status(400).send({status:false,Message:"Check url"})
+    return res.status(400).send({status:false,message:"Check url"})
 })
 
 
