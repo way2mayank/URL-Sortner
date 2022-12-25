@@ -1,7 +1,5 @@
-const mongoose = require('mongoose')
 const urlModel = require('../model/urlModel')
 const shortid = require('shortid')
-// const validUrl = require('valid-url')
 const redis = require("redis")
 const { promisify } = require('util')
 
@@ -54,40 +52,40 @@ const shortningUrl = async function (req, res) {
                 send({ status: false, message: "Url is not valid" })
 
         // *************** Unickness Checking of longUrl *********************
-       
-       
+
+
         let hitUrl1 = await GET_ASYNC(`${longUrl}`)
         if (hitUrl1) {
             return res.
                 status(200).
-                    send({status:true,message:"Url is already present",data:JSON.parse(hitUrl1)})
+                send({ status: true, message: "Url is already present", data: JSON.parse(hitUrl1) })
         }
 
 
-        const checkurl = await urlModel.findOne({ "longUrl": longUrl }).select({_id:0,createdAt:0,updatedAt:0,__v:0})
-       
+        const checkurl = await urlModel.findOne({ "longUrl": longUrl }).select({ _id: 0, createdAt: 0, updatedAt: 0, __v: 0 })
+
 
         if (checkurl) {
             await SET_ASYNC(`${longUrl}`, JSON.stringify(checkurl))
-            
+
             return res.
                 status(200).
-                send({ status: true, message: "Url is already present", data: checkurl})
+                send({ status: true, message: "Url is already present", data: checkurl })
         }
 
 
         const urlCode = (shortid.generate(longUrl)).toLowerCase()
         const shortUrl = "localhost:3000/" + urlCode
-       
+
         const createData = await urlModel.create({ longUrl, shortUrl, urlCode })
-        let createselected={
-            longUrl:createData.longUrl,
-            shortUrl:createData.shortUrl,
-            urlCode:createData.urlCode
+        let createselected = {
+            longUrl: createData.longUrl,
+            shortUrl: createData.shortUrl,
+            urlCode: createData.urlCode
         }
         return res.
             status(201).
-            send({ status: true, message: "Created Successfully", data:createselected })
+            send({ status: true, message: "Created Successfully", data: createselected })
     } catch (error) {
         res.
             status(500).
@@ -100,8 +98,7 @@ const urlRedirecting = async function (req, res) {
     try {
         let paramsUrlCode = req.params.urlCode
         let hitUrl1 = await GET_ASYNC(`${paramsUrlCode}`)
-        
-        
+
 
         if (hitUrl1) {
             return res.status(302).redirect(hitUrl1)
@@ -113,7 +110,7 @@ const urlRedirecting = async function (req, res) {
                 send({ status: false, message: `No URL found with this ${paramsUrlCode}` })
         const hitUrl = requireData.longUrl
         await SET_ASYNC(`${paramsUrlCode}`, hitUrl)
-       
+
         return res.status(302).redirect(hitUrl)
     } catch (error) {
         res.
